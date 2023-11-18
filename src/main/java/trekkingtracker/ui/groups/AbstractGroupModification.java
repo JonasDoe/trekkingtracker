@@ -120,7 +120,7 @@ public abstract class AbstractGroupModification extends Group implements Partici
     
     protected void storeModification(MatchingResult matchingPersons) {
         List<Integer> notFound = matchingPersons.notFound;
-        if (!notFound.isEmpty()) MainApp.printInfo(String.format("Could not find participants for %s. ", notFound));
+        if (!notFound.isEmpty()) MainApp.printInfo(String.format("Could not find participants for %s.", notFound));
         String remaining = notFound.stream().map(Object::toString).collect(Collectors.joining(","));
         numbersText.setText(remaining);
         List<Person> foundPersons = matchingPersons.found;
@@ -164,7 +164,7 @@ public abstract class AbstractGroupModification extends Group implements Partici
      * Holds reads and all persons found for the given start numbers and all numbers no persons could be found
      * for
      */
-    protected class MatchingResult {
+    protected static class MatchingResult {
         /**
          * All {@code Persons} identified by a given number
          */
@@ -180,7 +180,7 @@ public abstract class AbstractGroupModification extends Group implements Partici
          * @param startNumbersToPersons
          *         all known {@code Persons} by their start numbers
          * @param toParse
-         *         containing a comma-separated list of all start numbers the the matching {@code Person} shall be
+         *         containing a comma-separated list of all start numbers the matching {@code Person} shall be
          *         identified for (by the given map)
          */
         public MatchingResult(Map<Integer, Person> startNumbersToPersons, String toParse) {

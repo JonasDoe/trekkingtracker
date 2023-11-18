@@ -6,7 +6,7 @@ import java.util.Objects;
 
 /**
  * {@code EventPublisher} which distinguishes between background thread and ui thread event listeners. Background
- * listeners will be run first (in a background thread), afterwards ui-thread listeners in the ui thread.
+ * listeners will be run first (in a background thread), afterward ui-thread listeners in the ui thread.
  */
 public class ThreadAwareEventPublisher implements EventPublisher {
     /** Holds all listeners from non-ui threads */
