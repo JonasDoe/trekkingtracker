@@ -16,7 +16,12 @@ import trekkingtracker.event.requestevents.ParticipantsInitRequest;
 import trekkingtracker.persistence.ParticipantStore;
 import trekkingtracker.ui.groups.*;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -33,22 +38,6 @@ public class MainApp extends Application {
      * The location of the config file
      */
     public static final String CONFIG_FILE = "trekkingtracker.cfg";
-    /**
-     * The config file to be created in case its missing. While this could be achieved with {@code Config#store},
-     * we do it this way to also provide some config documentation.
-     */
-    private static final String DEFAULT_CONFIG = "# the timezone the program is working in\n" +
-            "timezone = CET\n" +
-            "# the separator between the fields in a row\n" +
-            "table.separator = ,\n" +
-            "# the number of header rows to be ignored\n" +
-            "table.skip_header_rows = 1\n" +
-            "# the number of the column with the participant's name (must be >= 1)\n" +
-            "table.name_column = 1\n" +
-            "# the number of the column with the participant's birthday (must be >= 1)\n" +
-            "table.birthday_column = 4\n" +
-            "# the number of the column with the participant's starter category (must be >= 1)\n" +
-            "table.category_column = 8";
     /**
      * The encoding of the files to read and store
      */
@@ -85,7 +74,7 @@ public class MainApp extends Application {
 
     @Override
     public void stop() throws Exception {
-        this.config.store();
+        // this.config.store();
     }
 
     @Override
@@ -132,10 +121,13 @@ public class MainApp extends Application {
     private void setup() throws IOException {
         File configFile = new File(CONFIG_FILE);
         if (!configFile.isFile()) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
-                writer.write(DEFAULT_CONFIG);
-            }
             initialLogEntries.add(String.format("Config file %s not found - created a new one with default settings. In case you want to adjust them, please edit the file and restart the program.", CONFIG_FILE));
+            var classloader = Thread.currentThread().getContextClassLoader();
+            try (InputStream is = classloader.getResourceAsStream(CONFIG_FILE)) {
+                if (is == null)
+                    throw new IOException(String.format("Couldn't restore default config %s b/c it's not available in the resources.", CONFIG_FILE));
+                else Files.copy(is, Path.of(CONFIG_FILE), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
         //config.registerConverter(ZoneId.class, new SettingConverter(Object::toString,ZoneId::of));
         this.config = new ConfigPreparer(new File(CONFIG_FILE)).registerConverter(ZoneId.class,
